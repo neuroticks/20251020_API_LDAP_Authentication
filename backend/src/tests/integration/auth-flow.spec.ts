@@ -28,7 +28,7 @@ describe('Fluxo de autenticação (integração)', () => {
             .post('/auth/login')
             .send({ email: fakeUsers.rh.email, password: 'errada' });
 
-        expect(res.status).toBe(400);
+        expect(res.status).toBe(401);
         expect(res.body.message).toContain('Usuário ou senha incorretos');
     });
 });

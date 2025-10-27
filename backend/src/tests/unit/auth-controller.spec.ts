@@ -1,52 +1,63 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import request from 'supertest';
+import express from 'express';
+import { describe, it, beforeEach, expect, vi } from 'vitest';
 import { AuthController } from '../../infra/http/controllers/auth.controller';
+import { asyncHandler } from '../../infra/http/middlewares/async-handler';
+import { errorHandler } from '../../infra/http/middlewares/error-handler';
+import { authRateLimiter } from '../../infra/http/middlewares/rate-limit';
 import { FakeLdapProvider } from '../../infra/ldap/fake-ldap-provider';
+import { Container } from '../../infra/di/container';
 import { fakeUsers } from '../fakes/fake-users';
+import { messages } from '@/core/messages/messages';
 
-// mocks do Express
-const mockRequest = (body = {}) => ({ body } as any);
-const mockResponse = () => {
-    const res: any = {};
-    res.status = vi.fn().mockReturnValue(res);
-    res.json = vi.fn().mockReturnValue(res);
-    return res;
-};
+// cria app express real, mas só com /login
+function createTestApp(controller: AuthController) {
+    const app = express();
+    app.use(express.json());
+    app.post('/login', authRateLimiter, asyncHandler((req, res) => controller.login(req, res)));
+    app.use(errorHandler);
+    return app;
+}
 
-describe('AuthController', () => {
+describe('AuthController (via Express real)', () => {
+    let app: express.Express;
     let controller: AuthController;
+    let ldap: FakeLdapProvider;
 
     beforeEach(() => {
-        const ldap = new FakeLdapProvider();
-        controller = new AuthController(ldap);
+        ldap = new FakeLdapProvider();
+        vi.spyOn(Container, 'resolve').mockReturnValue(ldap);
+        controller = new AuthController();
+        app = createTestApp(controller);
     });
 
-    it('deve autenticar o usuário e retornar 200 com o token e roles', async () => {
-        const req = mockRequest({
-            email: fakeUsers.chefe.email,
-            password: fakeUsers.chefe.password,
-        });
-        const res = mockResponse();
+    it('deve autenticar e retornar 200 com token e roles', async () => {
+        const res = await request(app)
+            .post('/login')
+            .send({ email: fakeUsers.chefe.email, password: fakeUsers.chefe.password });
 
-        await controller.login(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(200);
-        const jsonResponse = res.json.mock.calls[0][0];
-
-        expect(jsonResponse.token).toBeDefined();
-        expect(jsonResponse.roles).toEqual(fakeUsers.chefe.roles);
+        expect(res.status).toBe(200);
+        expect(res.body.token).toBeDefined();
+        expect(res.body.roles).toEqual(fakeUsers.chefe.roles);
     });
 
-    it('deve retornar 400 quando o login falhar', async () => {
-        const req = mockRequest({
-            email: fakeUsers.chefe.email,
-            password: 'senhaErrada',
-        });
-        const res = mockResponse();
+    it('deve retornar 401 quando o login falhar por credenciais inválidas', async () => {
+        const res = await request(app)
+            .post('/login')
+            .send({ email: fakeUsers.chefe.email, password: 'senhaErrada' });
 
-        await controller.login(req, res);
+        expect(res.status).toBe(401);
+        expect(res.body.message).toContain('Usuário ou senha incorretos');
+    });
 
-        expect(res.status).toHaveBeenCalledWith(400);
-        const jsonResponse = res.json.mock.calls[0][0];
-        expect(jsonResponse.message).toContain('Usuário ou senha incorretos');
+    it('deve retornar 503 quando o LDAP estiver fora do ar', async () => {
+        vi.spyOn(ldap, 'authenticate').mockRejectedValueOnce(new Error('LDAP_CONNECTION_ERROR'));
+
+        const res = await request(app)
+            .post('/login')
+            .send({ email: fakeUsers.chefe.email, password: fakeUsers.chefe.password });
+
+        expect(res.status).toBe(503);
+        expect(res.body.message).toContain(messages.auth.ldapError);
     });
 });

@@ -1,15 +1,19 @@
 import { Router } from 'express';
 import { AuthController } from '../controllers/auth.controller';
-import { Container } from '@/infra/di/container';
+import { asyncHandler } from '../middlewares/async-handler';
 import { authRateLimiter } from '../middlewares/rate-limit';
 
 const router = Router();
+const controller = new AuthController();
 
-router.post('/login', authRateLimiter, (req, res) => {
-    const ldapProvider = Container.resolve('ILdapAuthProvider');
-    const controller = new AuthController(ldapProvider);
-    controller.login(req, res);
-});
-
+/**
+ * Rota de autenticação de usuários.
+ * Inclui limitador de taxa e captura de exceções assíncronas.
+ */
+router.post(
+    '/login',
+    authRateLimiter,
+    asyncHandler((req, res) => controller.login(req, res))
+);
 
 export { router as authRoutes };
