@@ -1,0 +1,6 @@
+.pnpm-store
+.devcontainer
+node_modules
+.env
+.env.test
+dist

@@ -1,0 +1,53 @@
+{
+  "name": "ldap-auth-app",
+  "version": "1.0.0",
+  "description": "Aplicação Node.js com TypeScript e autenticação LDAP (com mock em DEV/TEST)",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "NODE_ENV=DEV tsx watch src/main.ts",
+    "build": "tsc",
+    "start": "NODE_ENV=PROD node dist/main.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts"
+  },
+  "keywords": [
+    "nodejs",
+    "typescript",
+    "ldap",
+    "auth",
+    "vitest",
+    "clean-architecture"
+  ],
+  "author": "Seu Nome",
+  "license": "MIT",
+  "packageManager": "pnpm@10.11.0",
+  "dependencies": {
+    "@types/express-rate-limit": "^6.0.2",
+    "@types/pino": "^7.0.5",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "ldapts": "^8.0.9",
+    "pino": "^10.1.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^22.7.5",
+    "@types/supertest": "^6.0.3",
+    "eslint": "^9.12.0",
+    "pino-pretty": "^13.1.2",
+    "supertest": "^7.1.1",
+    "tsx": "^4.16.3",
+    "vite-tsconfig-paths": "^4.3.1",
+    "vitest": "^2.1.3"
+  }
+}
