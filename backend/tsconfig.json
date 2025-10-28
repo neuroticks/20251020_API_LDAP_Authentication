@@ -1,34 +1,44 @@
 {
   "compilerOptions": {
-    /* Módulo e saída */
+    /* 🔧 Módulo e saída */
     "target": "ES2022",
-    "module": "commonjs",
+    "module": "NodeNext",
     "rootDir": "src",
     "outDir": "dist",
 
-    /* Suporte moderno */
+    /* 📚 Suporte moderno e compatibilidade */
     "lib": ["ES2022"],
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
 
-    /* Segurança e qualidade */
+    /* ⚙️ Qualidade e segurança do código */
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
 
-    /* Paths e aliases */
+    /* 🧩 Alias e import paths */
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"]
     },
 
-    /* Tipos globais a carregar */
-    "types": ["node", "express", "vitest/globals"]
+    /* 🧠 Tipos globais */
+    "types": ["node", "express", "vitest/globals"],
+
+    /* 🚀 Otimização de build */
+    "skipLibCheck": true,
+    "incremental": true
   },
-  "include": ["src/**/*", "src/types/**/*"],
+
+  /* 📦 Inclusões e exclusões */
+  "include": [
+    "src/**/*",
+    "src/types/**/*"
+  ],
   "exclude": ["node_modules", "dist"]
 }

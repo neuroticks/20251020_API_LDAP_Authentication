@@ -22,7 +22,7 @@
   ],
   "author": "Seu Nome",
   "license": "MIT",
-  "packageManager": "pnpm@10.11.0",
+  "packageManager": "pnpm@10.19.0",
   "dependencies": {
     "@types/express-rate-limit": "^6.0.2",
     "@types/pino": "^7.0.5",
@@ -35,7 +35,8 @@
     "ldapts": "^8.0.9",
     "pino": "^10.1.0",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
