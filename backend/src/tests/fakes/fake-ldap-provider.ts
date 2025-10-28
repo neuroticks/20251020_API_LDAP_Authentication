@@ -1,13 +1,15 @@
-import { ILdapAuthProvider } from '@/core/ports/ldap-auth-provider';
 import { fakeUsers } from './fake-users';
 
-export class FakeLdapProvider implements ILdapAuthProvider {
-    async authenticate(email: string, password: string) {
-        const user = Object.values(fakeUsers).find((u) => u.email === email);
+export class FakeLdapProvider {
+  async authenticate(email: string, password: string): Promise<boolean> {
+    const user = Object.values(fakeUsers).find(
+      (u) => u.email === email && u.password === password,
+    );
+    return !!user;
+  }
 
-        if (!user) throw new Error('INVALID_CREDENTIALS');
-        if (user.password !== password) throw new Error('INVALID_CREDENTIALS');
-
-        return { email: user.email, roles: user.roles };
-    }
+  async getUserRoles(email: string): Promise<string[]> {
+    const user = Object.values(fakeUsers).find((u) => u.email === email);
+    return user ? user.roles : [];
+  }
 }

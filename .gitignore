@@ -1,8 +1,126 @@
+# ===========================
+# 🌳 Node / TypeScript Backend
+# ===========================
+
+# PNPM store
 .pnpm-store
-.devcontainer
-node_modules
-.env
-.env.test
-dist
+
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+coverage/
+tmp/
+temp/
+
 # TypeScript incremental build info
-tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Vitest cache
+.vitest/
+coverage/
+*.lcov
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS / Editor artifacts
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# TypeScript compiled JS (if output to src by mistake)
+src/**/*.js
+src/**/*.js.map
+
+# ===========================
+# 🐳 Docker / Containers
+# ===========================
+
+# Docker volumes and artifacts
+docker-data/
+docker-compose.override.yml
+*.pid
+.devcontainer
+
+# ===========================
+# ⚙️ Testing / CI
+# ===========================
+
+# Jest / Vitest cache & coverage
+coverage/
+.vitest/
+
+# c8, nyc, istanbul
+.nyc_output/
+*.lcov
+
+# Reports
+reports/
+*.spec.results.json
+
+# ===========================
+# 📦 Dependency Managers
+# ===========================
+
+# NPM / Yarn / PNPM lockfiles (se usar apenas 1 mantenha o seu)
+# Caso queira versionar o lockfile, descomente apenas o usado.
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ===========================
+# 🧰 Misc / Backup
+# ===========================
+
+# Editor backups
+*~
+
+# Local scripts ou exemplos
+scripts/local-*
+sandbox/
+scratchpad/
+
+# JSON tokens e temas de UI temporários
+themes/debug/
+*.local.json
+
+# ===========================
+# 🔒 Security / Sensitive
+# ===========================
+
+# Private keys, certs e tokens
+*.pem
+*.key
+*.crt
+*.csr
+*.pfx
+*.p12
+*.cer
+secrets.json
+credentials.json
+auth.json
+private/
+.secret/

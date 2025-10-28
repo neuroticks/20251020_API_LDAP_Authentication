@@ -7,7 +7,7 @@ export default defineConfig({
     test: {
         globals: true,                 // permite usar describe/it/expect sem importar
         environment: 'node',           // ambiente ideal para backend Node.js
-        setupFiles: ['./src/tests/setup.ts'], // ✅ executa antes dos testes
+        setupFiles: ['./src/tests/setup/setup.ts'], // ✅ executa antes dos testes
         include: ['src/tests/**/*.spec.ts'], // garante busca em subpastas unit/integration
         coverage: {
             provider: 'v8',

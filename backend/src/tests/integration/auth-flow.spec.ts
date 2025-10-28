@@ -1,14 +1,14 @@
 // src/tests/integration/auth-flow.spec.ts
-import request from 'supertest';
-import { JwtService } from '@/infra/jwt/jwt-service';
 import { describe, it, expect, vi } from 'vitest';
-import { createServer } from '@/infra/http/server';
-import { fakeUsers } from '../fakes/fake-users';
+import request from 'supertest';
+import { createTestServer } from '../setup/test-server';
 import { Container } from '@/infra/di/container';
+import { fakeUsers } from '../fakes/fake-users';
 import { FakeLdapProvider } from '@/infra/ldap/fake-ldap-provider';
+import { JwtService } from '@/infra/jwt/jwt-service';
 import { messages } from '@/core/messages/messages';
 
-const app = createServer();
+const app = createTestServer();
 
 describe('Fluxo de autenticação (integração)', () => {
     it('deve autenticar e retornar token válido com roles do RH', async () => {
