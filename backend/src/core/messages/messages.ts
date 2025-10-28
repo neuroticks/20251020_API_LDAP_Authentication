@@ -13,6 +13,7 @@ export const messages = {
         ldapError: 'Erro de conexão com o servidor LDAP. Tente novamente mais tarde.',
         logout: 'Usuário desconectado com sucesso.',
         unauthorized: 'Acesso não autorizado. Token ausente ou inválido.',
+        tooManyAttempts: 'Muitas tentativas. Tente novamente mais tarde.',
     },
 
     jwt: {
