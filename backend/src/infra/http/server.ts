@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { requestContext } from './middlewares/request-context';
 import { authRoutes } from './routes/auth.routes';
 import { errorHandler } from './middlewares/error-handler';
 import { Container } from '@/infra/di/container';
@@ -26,6 +27,9 @@ export function createServer(): Application {
             legacyHeaders: false,
         })
     );
+
+    // Contexto por requisição (requestId + logger child)
+    app.use(requestContext);
 
     // ✅ Rotas
     app.use('/auth', authRoutes);
