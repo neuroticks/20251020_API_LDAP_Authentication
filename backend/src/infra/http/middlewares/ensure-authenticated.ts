@@ -14,12 +14,18 @@ export function ensureAuthenticated(req: Request, res: Response, next: NextFunct
   const [, token] = authHeader.split(' ');
 
   try {
-    const decoded = JwtService.verify(token);
+    const jwtService = new JwtService();
+    const decoded = jwtService.verify(token);
+
     req.user = decoded;
+
     logger.debug({ context: 'EnsureAuthenticated', user: decoded.email }, messages.jwt.verified);
+
     return next();
   } catch (error: any) {
+
     logger.error({ context: 'EnsureAuthenticated', error: error.message }, messages.jwt.invalid);
+
     return res.status(401).json({ message: messages.jwt.invalid });
   }
 }

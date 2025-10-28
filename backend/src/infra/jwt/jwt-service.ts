@@ -1,22 +1,25 @@
-import jwt, { JwtPayload, SignOptions, Algorithm } from 'jsonwebtoken';
+import jwt, { VerifyOptions, SignOptions, Algorithm } from 'jsonwebtoken';
 import { logger } from '@/infra/log/logger';
 import { messages } from '@/core/messages/messages';
 import { env } from '@/infra/config/env';
 
 export class JwtService {
-  private static get secret(): string {
-    const secret = env.JWT_SECRET;
-    if (!secret) {
+  private readonly secret: string;
+  private readonly algorithm: Algorithm;
+  private readonly expiresIn: SignOptions['expiresIn'];
+
+  constructor() {
+    this.secret = env.JWT_SECRET;
+    if (!this.secret) {
       logger.error({ context: 'JwtService' }, messages.jwt.missingSecret);
       throw new Error(messages.jwt.missingSecret);
     }
-    return secret;
+    this.algorithm = 'HS512';
+    this.expiresIn = '30m';
   }
 
-  private static readonly algorithm: Algorithm = 'HS512';
-
-  static sign(payload: object, expiresIn: SignOptions['expiresIn'] = '30m'): string {
-    const options: SignOptions = { expiresIn, algorithm: this.algorithm };
+  sign(payload: object): string {
+    const options: SignOptions = { expiresIn: this.expiresIn, algorithm: this.algorithm };
 
     const token = jwt.sign(payload, this.secret, options);
 
@@ -25,14 +28,10 @@ export class JwtService {
     return token;
   }
 
-  static verify(token: string): JwtPayload {
-    try {
-      const decoded = jwt.verify(token, this.secret, { algorithms: ['HS512'] }) as JwtPayload;
-      logger.debug({ context: 'JwtService' }, messages.jwt.verified);
-      return decoded;
-    } catch (err: any) {
-      logger.warn({ context: 'JwtService', error: err.message }, messages.jwt.invalid);
-      throw new Error(messages.jwt.invalid);
-    }
+  verify<T = any>(token: string): T {
+    const options: VerifyOptions = { algorithms: [this.algorithm] };
+    return jwt.verify(token, this.secret, options) as T;
   }
 }
+
+

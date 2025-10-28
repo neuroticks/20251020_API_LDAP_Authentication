@@ -21,4 +21,5 @@ export const env = {
     NODE_ENV: process.env.NODE_ENV ?? 'DEV',
     PORT: process.env.PORT ?? '3000',
     JWT_SECRET: process.env.JWT_SECRET ?? '',
+    LOG_LEVEL: process.env.LOG_LEVEL ?? 'info',
 };

@@ -1,48 +1,43 @@
 import express, { Application } from 'express';
-import helmet from 'helmet';
 import cors from 'cors';
-import { routes } from './routes';
-import { env } from '@/infra/config/env';
-import { logger } from '@/infra/log/logger';
-import { messages } from '@/core/messages/messages';
-import { Container } from '@/infra/di/container';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { authRoutes } from './routes/auth.routes';
 import { errorHandler } from './middlewares/error-handler';
+import { Container } from '@/infra/di/container';
+import { logger } from '@/infra/log/logger';
 
 export function createServer(): Application {
-    // Inicializa dependências (IoC)
-    Container.registerDependencies();
+    // ✅ Inicializa o IoC container
+    Container.init();
 
     const app = express();
 
-    // Middlewares globais
-    app.use(express.json());
     app.use(helmet());
     app.use(cors());
+    app.use(express.json());
 
-    // Rotas da aplicação
-    app.use(routes);
+    // ✅ Rate limit global básico
+    app.use(
+        rateLimit({
+            windowMs: 60 * 1000,
+            max: 30,
+            standardHeaders: true,
+            legacyHeaders: false,
+        })
+    );
 
-    // Healthcheck padrão
-    app.get('/healthz', (_, res) => {
-        res.status(200).json({ status: 'ok', env: env.NODE_ENV });
-    });
+    // ✅ Rotas
+    app.use('/auth', authRoutes);
 
-    // Middleware global de tratamento de erros
+    // ✅ Middleware global de erros
     app.use(errorHandler);
 
+    // ✅ Healthcheck
+    app.get('/health', (_, res) => res.status(200).json({ status: 'ok' }));
+
+    // ✅ Log de inicialização
+    logger.info('Servidor Express inicializado com sucesso.');
+
     return app;
-}
-
-// Inicialização do servidor (somente fora de testes)
-if (env.NODE_ENV !== 'TEST') {
-    const app = createServer();
-    const port = env.PORT || 3000;
-
-    app
-        .listen(port, () => {
-            logger.info({ context: 'Server', port, env: env.NODE_ENV }, messages.server.start);
-        })
-        .on('error', (error) => {
-            logger.error({ context: 'Server', error: error.message }, messages.server.error);
-        });
 }

@@ -1,0 +1,85 @@
+então meu amigo... o negocio esta muito enrolado.. cada mudança quebra varios outros arquivos e dai a correção dos outros traz outras mudanças e fica nesse vai e vem que parece que não tem uma visão geral.. não tem conhecimento dos impactos e da real necessidade das mudanças.. ou da sua consistencia.. daí ta ficando dificil porque antes esse usecase ja retornava roles.. daí mudou pra não retornar.. agora vai mudar de novo pra retornar.. assim fica dificil voce me entende?
+
+
+========================
+========================
+========================
+
+💯 Você está completamente certo — e esse é um ponto **muito importante de maturidade arquitetural**.
+O que você está sentindo é o reflexo de um problema que todo projeto modular passa se a gente perde o **controle de consistência entre as camadas**.
+
+👉 No fundo, o problema não é o código “quebrar” quando muda — é o **fluxo de decisão** que não está amarrado por um contrato claro entre os componentes (Controller → UseCase → Provider → DTO).
+
+---
+
+### 🎯 O que precisamos fazer agora
+
+Antes de continuar “corrigindo”, temos que **estabilizar o contrato de autenticação**.
+Isso significa definir **uma única fonte de verdade** para o que entra e sai de cada camada.
+Depois disso, nenhuma mudança em um arquivo vai quebrar outro, porque todos estarão baseados no mesmo contrato.
+
+---
+
+## 🔐 Estrutura estável e previsível
+
+| Camada                | Responsabilidade                                                           | Retorno fixo              |
+| --------------------- | -------------------------------------------------------------------------- | ------------------------- |
+| **Controller**        | Recebe e valida a requisição (Zod), chama o use case, retorna o DTO final  | `AuthResponseDTO`         |
+| **UseCase**           | Contém a lógica de negócio: autentica → gera token → retorna dados mínimos | `AuthResultDTO`           |
+| **Infra (LDAP, JWT)** | Faz operações externas (bind, sign, verify)                                | abstraídas via interfaces |
+| **Core (DTOs)**       | Define formatos de request/response padronizados                           | fixos, versionados        |
+
+---
+
+## 📦 Estrutura dos DTOs (fixa a partir daqui)
+
+📁 `src/core/domain/types/`
+
+| Arquivo                | Tipo                                                  | Usado por        |
+| ---------------------- | ----------------------------------------------------- | ---------------- |
+| `auth-request-dto.ts`  | `{ email: string; password: string }`                 | Controller input |
+| `auth-result-dto.ts`   | `{ token: string; roles: string[] }`                  | Use case output  |
+| `auth-response-dto.ts` | `{ token: string; roles: string[]; message: string }` | HTTP response    |
+
+👉 Essa separação deixa claro que:
+
+* O **use case** não precisa saber de mensagens nem HTTP.
+* O **controller** nunca se preocupa com regras de autenticação.
+* Os **testes** sabem exatamente o que validar.
+
+---
+
+## ✅ Plano de estabilização
+
+1. **Fixar os DTOs** (os três acima, em `src/core/domain/types/`).
+2. **Atualizar o UseCase** para retornar `AuthResultDTO` — e nunca mais mexer nisso.
+3. **Atualizar o Controller** para sempre transformar o `AuthResultDTO` em `AuthResponseDTO` — e nunca mais mexer nisso.
+4. **Padronizar os testes** para esperar exatamente esses tipos (sem cast, sem inferência).
+
+---
+
+## 🧠 E depois disso...
+
+Quando o contrato estiver estável:
+
+* qualquer mudança de regra de negócio acontece **dentro do use case**,
+* qualquer mudança de mensagem ou tradução acontece **dentro do messages.ts**,
+* e o resto do sistema **não precisa mudar**.
+
+---
+
+Se quiser, eu posso:
+
+1. Gerar **os três DTOs padronizados**,
+2. Reescrever o `AuthenticateUserUseCase` e o `AuthController` para usá-los **definitivamente**,
+3. E te mostrar **um mapa de impacto** (quem usa quem), pra você ver que a arquitetura fica trancada — sem mais vai-e-volta.
+
+Quer que eu monte esse pacote de estabilização agora?
+
+
+==============================
+=============================
+==============================
+sim quero que voce gere os 3 dtos padronizados completos, quero que voce reescreva o authenticateuserUseCase e o AuthController, e também quero que voce reescreva os testes para usar tudo isso de acordo e ter a cobertura boa para identificar possiveis erros e verificar o funcionamentos correto de unidade e de integração do que temos feito ate agora.. 
+
+

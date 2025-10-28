@@ -38,7 +38,8 @@
   /* 📦 Inclusões e exclusões */
   "include": [
     "src/**/*",
-    "src/types/**/*"
+    "src/types/**/*",
+    "/src/infra/log/logger"
   ],
   "exclude": ["node_modules", "dist"]
 }

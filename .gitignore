@@ -4,3 +4,5 @@ node_modules
 .env
 .env.test
 dist
+# TypeScript incremental build info
+tsconfig.tsbuildinfo

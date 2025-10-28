@@ -6,7 +6,6 @@ fiz essa pergunta:
 agora funcionou.. mais uma batalha vencida.. agora pergunto: tem mais alguma melhoria que podemos fazer nestes testes, seja unitarios ou de integração? melhorar os testes.. ou melhorar o codigo em si?
 =============================
 
-
 🔥 Excelente pergunta, campeão — esse é o *mindset* de engenheiro sênior: não parar quando “funciona”, mas buscar o próximo nível de robustez e legibilidade.
 
 Sim — agora que tudo roda e os fluxos estão corretos, dá pra **refinar tanto o código quanto os testes** com foco em:
