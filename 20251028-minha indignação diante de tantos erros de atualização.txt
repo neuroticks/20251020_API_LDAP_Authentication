@@ -158,12 +158,24 @@ Você pode rodar qualquer teste individualmente (`vitest run src/tests/unit/auth
 
 ### ⚠️ O que *ainda poderia ser feito* (opcional, nível avançado):
 
-| Item                                                                                                           | Status               | Justificativa / Benefício                                                                        |
-| -------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------ |
-| **Mock centralizado de repositórios de domínio (ex: `JustificativaRepository`, `FolhaPontoRepository`, etc.)** | 🚧 Pendente (futuro) | Importante quando começar a testar módulos de domínio com banco de dados / persistência          |
-| **Factory de mocks/stubs reutilizável**                                                                        | 🚧 Pendente          | Um `mockFactory.ts` poderia criar instâncias pré-configuradas (útil em TDD e novos casos de uso) |
-| **Fixture Loader (dados de teste reutilizáveis)**                                                              | 🚧 Opcional          | Ex.: `loadFakeUser('chefe')` ou `makeValidAuthPayload()` para simplificar testes de request      |
-| **Test doubles de domínio mais ricos (quando houver regras complexas)**                                        | 🚧 Futuro            | Útil quando `use-cases/` crescer e precisar simular diferentes cenários de regras                |
+| Item                     | Status               | Justificativa/Benefício                        |
+|--------------------------|---------------------------------------------------------------------- |
+| **Mock centralizado de 
+    repositórios de domínio
+    (ex: `JustificativaRepo
+    sitory`, `FolhaPontoRep
+    ository`, etc.)**      | 🚧 Pendente (futuro) | Importante quando começar a testar módulos de domínio com banco de dados / persistência          |
+
+| **Factory de mocks/stubs
+    reutilizável**         | 🚧 Pendente          | Um `mockFactory.ts` poderia criar instâncias pré-configuradas (útil em TDD e novos casos de uso) |
+
+| **Fixture Loader (dados 
+    de teste reutilizáveis
+    )**                    | 🚧 Opcional          | Ex.: `loadFakeUser('chefe')` ou `makeValidAuthPayload()` para simplificar testes de request      |
+
+| **Test doubles de domínio
+    mais ricos (quando houv
+    er regras complexas)** | 🚧 Futuro            | Útil quando `use-cases/` crescer e precisar simular diferentes cenários de regras                |
 
 ---
 

@@ -12,8 +12,8 @@ import { config } from 'dotenv';
 
 const envFile =
     process.env.NODE_ENV === 'test'
-        ? path.resolve(__dirname, '../../.env.test')
-        : path.resolve(__dirname, '../../.env');
+        ? path.resolve(process.cwd(), '.env.test')
+        : path.resolve(process.cwd(), '.env');
 
 config({ path: envFile });
 

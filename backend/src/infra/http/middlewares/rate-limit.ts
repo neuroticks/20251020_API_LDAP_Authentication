@@ -1,13 +1,14 @@
 import rateLimit from 'express-rate-limit';
 import { logger } from '@/infra/log/logger';
 import { messages } from '@/core/messages/messages';
+import { env } from '@/infra/config/env';
 
 const DEFAULT_WINDOW_MIN = 15;
 const DEFAULT_MAX_ATTEMPTS = 5;
 
 export const authRateLimiter = rateLimit({
-    windowMs: (Number(process.env.RATE_LIMIT_WINDOW_MIN) || DEFAULT_WINDOW_MIN) * 60 * 1000,
-    max: Number(process.env.RATE_LIMIT_MAX_ATTEMPTS) || DEFAULT_MAX_ATTEMPTS,
+    windowMs: (Number(env.RATE_LIMIT_WINDOW_MIN) || DEFAULT_WINDOW_MIN) * 60 * 1000,
+    max: Number(env.RATE_LIMIT_MAX_ATTEMPTS) || DEFAULT_MAX_ATTEMPTS,
     standardHeaders: true,   // RateLimit-* headers
     legacyHeaders: false,    // X-RateLimit-* desativado
     handler: (req, res /*, next */) => {
