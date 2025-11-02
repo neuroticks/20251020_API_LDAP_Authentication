@@ -1,21 +1,52 @@
-// src/tests/setup/test-server.ts
-import express from 'express';
-import { AuthController } from '@/infra/http/controllers/auth.controller';
-import { requestContext } from './../../infra/http/middlewares/request-context';
+import express, { Express } from "express";
+import helmet from "helmet";
+import cors from "cors";
+import { routes } from "@/infra/http/routes";
+import { healthRouter } from "@/infra/http/routes/health-check.route";
+import { errorHandler } from "@/infra/http/middlewares/error-handler";
+import { requestContextMiddleware } from "@/infra/http/middlewares/request-context";
+import { requestLogger } from "@/infra/http/middlewares/request-logger";
+import { logger } from "@/infra/log";
 
-export function createTestServer() {
+/**
+ * Cria uma instância isolada do servidor Express
+ * configurada para uso em testes (Vitest / Supertest).
+ * 
+ * Inclui middlewares de contexto e logging,
+ * para que o comportamento de log nos testes
+ * seja idêntico ao do servidor real.
+ */
+export function createTestServer(): Express {
     const app = express();
 
-    // Inclui middlewares globais que também são usados em produção.
-    // Importante para que os testes reflitam o comportamento real da aplicação.
+    // ======================================================================
+    // 🧩 1. Middlewares técnicos básicos
+    // ======================================================================
+    app.use(cors());
+    app.use(helmet());
     app.use(express.json());
-    app.use(requestContext);
 
-    const controller = new AuthController();
-    app.post('/auth/login', (req, res) => controller.login(req, res));
+    // ======================================================================
+    // 🧩 2. Contexto de requisição e logging global
+    // ======================================================================
+    app.use(requestContextMiddleware);
+    app.use(requestLogger);
 
-    // Healthcheck opcional
-    app.get('/health', (_, res) => res.status(200).json({ status: 'ok' }));
+    // ======================================================================
+    // 🧩 3. Rotas reais (com asyncHandler para capturar erros)
+    // ======================================================================
+    app.use(healthRouter);
+    app.use(routes);
+
+    // ======================================================================
+    // 🧩 4. Tratador global de erros
+    // ======================================================================
+    app.use(errorHandler);
+
+    // ======================================================================
+    // 🧩 5. Log de inicialização (para debug nos testes)
+    // ======================================================================
+    logger.debug("🧪 Servidor de teste inicializado com middlewares de contexto e log.");
 
     return app;
 }

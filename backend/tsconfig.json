@@ -22,9 +22,9 @@
     "noFallthroughCasesInSwitch": true,
 
     /* 🧩 Alias e import paths */
-    "baseUrl": "./",
+    "baseUrl": "src",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["*"]
     },
 
     /* 🧠 Tipos globais */

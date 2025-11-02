@@ -1,50 +1,48 @@
+import { AsyncLocalStorage } from "node:async_hooks";
+import crypto from "node:crypto";
+import type { Request, Response, NextFunction } from "express";
+
+export interface RequestContext {
+    traceId: string;
+    userId?: string;
+    path?: string;
+    method?: string;
+}
+
 /**
- * Middleware: Request Context
- * Gera um requestId único e cria um logger filho contextualizado.
- * Permite rastrear toda a requisição nos logs.
+ * Contexto assíncrono por requisição (compatível com OpenTelemetry).
+ * O traceId é um hex de 16 bytes (32 chars).
  */
-import { Request, Response, NextFunction } from 'express';
-import { randomUUID } from 'crypto';
-import { logger } from '@/infra/log/logger';
+export const requestContext = new AsyncLocalStorage<RequestContext>();
 
-export function requestContext(req: Request, res: Response, next: NextFunction) {
-    // Gera um ID único por requisição
-    const requestId = randomUUID();
+/**
+ * Middleware que cria o contexto de trace e o propaga por toda a requisição.
+ * Não depende de autenticação. O userId pode ser setado depois via setUserInRequestContext().
+ */
+export function requestContextMiddleware(
+    req: Request & { user?: { id?: string } },
+    _res: Response,
+    next: NextFunction
+) {
+    const traceId = crypto.randomBytes(16).toString("hex");
 
-    // Cria um logger filho com contexto
-    const childLogger = logger.child({ requestId });
+    const context: RequestContext = {
+        traceId,
+        userId: req.user?.id, // se existir neste ponto, ótimo; se não, dá pra setar depois
+        path: req.originalUrl,
+        method: req.method,
+    };
 
-    // Atribui às propriedades do request e response
-    req.requestId = requestId;
-    req.logger = childLogger;
-    res.locals.logger = childLogger;
+    requestContext.run(context, () => next());
+}
 
-    // 🆕 devolve o id também no cabeçalho HTTP
-    res.setHeader('x-request-id', requestId);
-
-    // Log de início da requisição
-    childLogger.info(
-        {
-            method: req.method,
-            url: req.originalUrl,
-            ip: req.ip,
-        },
-        'Início da requisição'
-    );
-
-    // Log automático no final da resposta
-    res.on('finish', () => {
-        childLogger.info(
-            {
-                method: req.method,
-                url: req.originalUrl,
-                status: res.statusCode,
-                durationMs: Date.now() - startTime,
-            },
-            'Fim da requisição'
-        );
-    });
-
-    const startTime = Date.now();
-    next();
+/**
+ * Permite atualizar o userId depois que você o descobrir (ex.: após decodificar JWT em qualquer ponto).
+ * Use em qualquer lugar do fluxo da mesma request.
+ */
+export function setUserInRequestContext(userId: string | undefined) {
+    const store = requestContext.getStore();
+    if (store) {
+        store.userId = userId || undefined;
+    }
 }

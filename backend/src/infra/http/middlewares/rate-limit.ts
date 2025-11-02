@@ -1,28 +1,41 @@
-import rateLimit from 'express-rate-limit';
-import { logger } from '@/infra/log/logger';
-import { messages } from '@/core/messages/messages';
-import { env } from '@/infra/config/env';
+import rateLimitModule, { ipKeyGenerator, type Options } from "express-rate-limit";
+import type { Request, Response, NextFunction } from "express";
+import { logger } from "@/infra/log";
+import { messages } from "@/core/messages/messages";
 
-const DEFAULT_WINDOW_MIN = 15;
-const DEFAULT_MAX_ATTEMPTS = 5;
+// Força compatibilidade ESM/CJS
+const rateLimit = (rateLimitModule as any).default ?? rateLimitModule;
 
+/** IP seguro (Express 5: req.ip pode ser undefined). */
+function safeIp(req: Request): string {
+    return req.ip ?? req.socket?.remoteAddress ?? "unknown";
+}
+
+/**
+ * Middleware global de limitação de requisições.
+ */
 export const authRateLimiter = rateLimit({
-    windowMs: (Number(env.RATE_LIMIT_WINDOW_MIN) || DEFAULT_WINDOW_MIN) * 60 * 1000,
-    max: Number(env.RATE_LIMIT_MAX_ATTEMPTS) || DEFAULT_MAX_ATTEMPTS,
-    standardHeaders: true,   // RateLimit-* headers
-    legacyHeaders: false,    // X-RateLimit-* desativado
-    handler: (req, res /*, next */) => {
-        const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
-        logger.warn({ context: 'rate-limit', ip, path: req.originalUrl }, 'Muitas tentativas de requisição.');
+    windowMs: 60 * 1000,           // 1 minuto
+    limit: 10,                     // até 10 requisições por IP
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: messages.auth.tooManyAttempts,
 
-        const generic =
-            messages.auth.tooManyAttempts ||
-            'Muitas tentativas. Tente novamente mais tarde.';
+    keyGenerator: (req: Request) => ipKeyGenerator(safeIp(req)),
 
-        return res.status(429).json({ message: generic });
-    },
-    keyGenerator: (req /*, res*/) => {
-        // Pode customizar por IP + email, se preferir (cuidado com privacidade)
-        return req.ip || 'unknown';
+    handler: (req: Request, res: Response, _next: NextFunction, options: Options) => {
+        const ip = ipKeyGenerator(safeIp(req));
+        const path = req.originalUrl;
+        const janelaSegundos = Math.ceil(options.windowMs / 1000);
+        const limitePorJanela = typeof options.limit === "number" ? options.limit : 0;
+
+        logger.warn(messages.auth.tooManyAttempts, {
+            ip,
+            rota: path,
+            janelaSegundos,
+            limitePorJanela,
+        });
+
+        res.status(options.statusCode ?? 429).json(options.message);
     },
 });

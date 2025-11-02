@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Aplicação Node.js com TypeScript e autenticação LDAP (com mock em DEV/TEST)",
   "main": "dist/main.js",
-  "type": "module",
   "scripts": {
     "dev": "NODE_ENV=DEV tsx watch src/main.ts",
     "build": "tsc",

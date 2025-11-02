@@ -73,37 +73,6 @@ run('pnpm check:envs', 'check-env-keys (Sincronia entre todos os .env)');
 // === 3. Mapeamento .env → config/env.ts ============================
 run('pnpm check:env:map', 'check-env-config-mapping (Validação do config/env.ts)');
 
-// === 4. Arquivos essenciais =======================================
-log(chalk.bold('\n📂 Verificando arquivos essenciais'));
-const required = [
-    '.env.example',
-    'Dockerfile',
-    'tsconfig.json',
-    'vitest.config.ts',
-    '.eslintrc.json',
-];
-const missing = required.filter(f => !fs.existsSync(f));
-if (missing.length) {
-    console.error(`✗ Arquivos ausentes: ${missing.join(', ')}`);
-    process.exit(1);
-}
-log(chalk.green('✓ Arquivos essenciais OK'));
-
-// === 5. Testes / build / lint =====================================
-run('pnpm test:coverage --silent', 'Testes com cobertura');
-run('pnpm lint --silent', 'Lint');
-run('pnpm build --noEmit', 'Compilação TypeScript');
-
-// === 6. Dockerfile ================================================
-log(chalk.bold('\n🐳 Verificando Dockerfile'));
-const dockerfile = fs.readFileSync('Dockerfile', 'utf-8');
-const checks = ['FROM node:', 'RUN pnpm', 'CMD ["node"'];
-const fail = checks.filter(c => !dockerfile.includes(c));
-if (fail.length) {
-    console.error(`✗ Dockerfile faltando instruções: ${fail.join(', ')}`);
-    process.exit(1);
-}
-log(chalk.green('✓ Dockerfile válido'));
 
 // === 7. Servidor e endpoints ======================================
 log(chalk.bold('\n🌐 Testando endpoints /health e /metrics'));
@@ -155,6 +124,38 @@ try {
     console.error('✗ Falha no Container:', err.message);
     process.exit(1);
 }
+
+// === 5. Testes / build / lint =====================================
+run('pnpm test:coverage --silent', 'Testes com cobertura');
+run('pnpm lint --silent', 'Lint');
+run('pnpm build --noEmit', 'Compilação TypeScript');
+
+// === 6. Dockerfile ================================================
+log(chalk.bold('\n🐳 Verificando Dockerfile'));
+const dockerfile = fs.readFileSync('Dockerfile', 'utf-8');
+const checks = ['FROM node:', 'RUN pnpm', 'CMD ["node"'];
+const fail = checks.filter(c => !dockerfile.includes(c));
+if (fail.length) {
+    console.error(`✗ Dockerfile faltando instruções: ${fail.join(', ')}`);
+    process.exit(1);
+}
+log(chalk.green('✓ Dockerfile válido'));
+
+// === 4. Arquivos essenciais =======================================
+log(chalk.bold('\n📂 Verificando arquivos essenciais'));
+const required = [
+    '.env.example',
+    'Dockerfile',
+    'tsconfig.json',
+    'vitest.config.ts',
+    '.eslintrc.json',
+];
+const missing = required.filter(f => !fs.existsSync(f));
+if (missing.length) {
+    console.error(`✗ Arquivos ausentes: ${missing.join(', ')}`);
+    process.exit(1);
+}
+log(chalk.green('✓ Arquivos essenciais OK'));
 
 // === 9. Resumo final ==============================================
 if (isCI) {
